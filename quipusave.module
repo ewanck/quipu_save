@@ -1,0 +1,402 @@
+<?php
+
+//Defines block for Quipu Save module;
+
+function quipusave_block_info() {
+  $blocks['quipusave'] = array(
+    'info' => t('Quipu Save'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
+  return $blocks;
+}
+
+//Defines block content
+
+function quipusave_block_view() {
+  $block['subject'] = t('All Urls');
+  if (user_access('access content')) {
+    $urls = '571';
+    $items = array();
+    $items[] = array('data' => 'test');
+//    $block['content'] = theme('item_list', array('items' => $urls));
+    $block['content'] = t(quipusave_generate_numbers('571'));
+  };
+  return $block; 
+};
+
+
+//Stores incoming audio from phoneline as Audio Story content type.
+
+function quipusave_storeaudio($url, $length, $fid, $nid) {
+
+//Create new node object and populate with field data. ->type defines content type, ->uid defines user where '8' is 'phoneline' user. (all content input from modules should use this Uid.)
+
+  $newNode = (object) NULL;
+
+  if ($nid != '') {
+    $newNode = node_load($nid);
+  };
+
+  $newNode->uid = "8";
+  $newNode->type = 'audio_story';
+  $newNode->status = 0;
+  $newNode->title = t($url);
+  $newNode->field_audio_link[LANGUAGE_NONE]['0']['value'] = t($url);
+  $newNode->field_length[LANGUAGE_NONE]['0']['value'] = t($length);
+  $newNode->body[LANGUAGE_NONE][0]['value'] = t('To be filled in by Moderator');
+
+//Creates file object using the Fid supplied from Voip script. This allows the file to be downloaded and accessed via the front end player.
+
+  $file = (object) array(
+    'fid' => $fid,
+    'uri' => $url,
+    'filemime' => file_get_mimetype($url),
+    'status' =>1,
+    'display' => 1,
+  );
+  $newNode->field_audio_file[LANGUAGE_NONE][0] = (array)$file;
+  $newNode->field_recording_fid[LANGUAGE_NONE][0]['value'] = t($fid);
+  node_save($newNode);
+
+  $nodeId = $newNode->nid;
+
+  $newNode->title = t($nodeId);
+  node_save($newNode);
+
+  return $nodeId;
+
+};
+
+//Saves the first interview question in a new node with it's associated info.
+
+function quipusave_store_interview($url, $length) {
+  $newNode = (object) NULL;
+  $newNode->uid = "8";
+  $newNode->type = 'interview_questionnaire';
+  $newNode->status = 1;
+  $newNode->title = t($url);
+  $newNode->field_answer_1[LANGUAGE_NONE]['0']['value'] = t($url);
+  $newNode->field_length[LANGUAGE_NONE]['0']['value'] = t($length);
+  $newNode->body[LANGUAGE_NONE][0]['value'] = t($url);
+  node_save($newNode);
+
+//After the node is saved the new node's Id is returned to the Voip script. This allows the interview_update function to save all interview questions to the same node.
+
+  $nodeId = $newNode->nid;
+
+  return $nodeId;
+
+};
+
+//Adds to the node created in Store_interview, using the nid passed from the voip script. Each question is updated individually as the interview progresses.
+
+function quipusave_append_interview($url, $id, $answer_no, $length) {
+  $newNode = node_load($id);
+  if ($answer_no == 2) {
+    $newNode->field_answer_2[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_2[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 3) {
+    $newNode->field_answer_3[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_3[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 4) {
+    $newNode->field_answer_4[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_4[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 5) {
+    $newNode->field_answer_5[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_5[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 6) {
+    $newNode->field_answer_6[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_6[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 7) {
+    $newNode->field_answer_7[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_7[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 8) {
+    $newNode->field_answer_8[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_8[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 9) {
+    $newNode->field_answer_9[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_9[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 10) {
+    $newNode->field_answer_10[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_10[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 11) {
+    $newNode->field_answer_11[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_11[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 12) {
+    $newNode->field_answer_12[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_12[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 13) {
+    $newNode->field_answer_13[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_13[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 14) {
+    $newNode->field_answer_14[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_14[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 15) {
+    $newNode->field_answer_15[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_15[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 16) {
+    $newNode->field_answer_16[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_16[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 17) {
+    $newNode->field_answer_17[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_17[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 18) {
+    $newNode->field_answer_18[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_18[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  elseif ($answer_no == 19) {
+    $newNode->field_answer_19[LANGUAGE_NONE]['0']['value'] = t($url);
+    $newNode->field_length_19[LANGUAGE_NONE]['0']['value'] = t($length);
+  }
+  node_save($newNode);
+};
+
+//Stores audios from petition section of voip script to node of content type 'petition_entry'. The $parent variable is passed from the voipscript depending on which petition the user is trying to respond to. It is then saved in the parent_petition field so that the correct recordings are played back under the correct petiton when load_pettitions is called.
+
+function quipusave_store_petition($url, $parent, $length) {
+  $newNode = (object) NULL;
+  $newNode->uid = "8";
+  $newNode->type = 'petition_entry';
+  $newNode->status = 0;
+  $newNode->title = t($url);
+  $newNode->field_audio_link[LANGUAGE_NONE]['0']['value'] = t($url);
+  $newNode->body[LANGUAGE_NONE][0]['value'] = t($url);
+  $newNode->field_parent_petition[LANGUAGE_NONE][0]['value'] = $parent;
+  $newNode->field_length[LANGUAGE_NONE]['0']['value'] = t($length);
+
+  node_save($newNode);
+};
+
+//As above but for feedback messages.
+
+function quipusave_storefeedback($url, $length) {
+  $newNode = (object) NULL;
+  $newNode->uid = "8";
+  $newNode->type = 'feedback_message';
+  $newNode->status = 1;
+  $newNode->title = t($url);
+  $newNode->field_audio_link[LANGUAGE_NONE]['0']['value'] = t($url);
+  $newNode->field_length[LANGUAGE_NONE]['0']['value'] = t($length);
+  $newNode->body[LANGUAGE_NONE][0]['value'] = t($url);
+  node_save($newNode);
+};
+
+
+//Queries database for all published audio stories, to be returned to voip script and played to end user.
+
+function quipusave_loadstories() {
+
+//Uses Entity Field Query as the db_select method does not allow filtering from custom fields in content types. 
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+
+//Check if published - status = 1;
+
+    ->propertyCondition('status', 1)
+    ->propertyCondition('type', 'audio_story')
+    ->propertyOrderBy('created', 'DESC');
+  $results = $query->execute();
+  if (isset($results['node'])) {
+    $nodes = node_load_multiple(array_keys($results['node']));
+
+    foreach ($nodes as $node) {
+      $audio_link = field_get_items('node', $node, 'field_audio_link');
+      $callback[] = $audio_link[0]['value'];
+    };
+  };
+
+//Returns a list of Urls which can be looped through in the voip script.
+
+  return $callback;
+
+};
+
+
+//As above but for petition entries. The $parent variable sent from the voipscript marks which petition the user is listening to, and therefor which resposes should be returned back to the voipscript.
+
+function quipusave_loadpetitions($parent) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('status', 1)
+    ->propertyCondition('type', 'petition_entry')
+    ->fieldCondition('field_parent_petition', 'value', $parent)
+    ->propertyOrderBy('created', 'DESC');
+  $results = $query->execute();
+  if (isset($results['node'])) {
+    $nodes = node_load_multiple(array_keys($results['node']));
+
+    foreach ($nodes as $node) {
+      $audio_link = field_get_items('node', $node, 'field_audio_link');
+      $callback[] = $audio_link[0]['value'];
+    };
+  };
+
+  return $callback;
+};
+
+//Queries the database for the recording matching the Fid to the users keypad input. The user is given their Fid number after confirming their recording, so this function allows them to input the digits and retrieve their specific recording later. 
+
+function quipusave_selectstory($nid) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'audio_story')
+    ->propertyCondition('nid', $nid);
+
+//   ->fieldCondition('field_recording_fid', 'value', $fid);
+  $results = $query->execute();
+  if (isset($results['node'])) {
+    $nodes = node_load_multiple(array_keys($results['node']));
+    foreach ($nodes as $node) {
+      $audio_link = field_get_items('node', $node, 'field_audio_link');
+      $callback[] = $audio_link[0]['value'];
+    };
+
+  };
+  $callback_value = $callback[0]; 
+
+//Returns one specific Url to be played directly in the voipscript
+
+  return $callback_value;
+
+};
+
+//Takes the incoming string and converts it to a list of Urls to be played to the user. In other words it turns a computer generated string into recorded audio of the presenters voice. This is used primarily to deal with Fid's in the phonline but can be used to 'say' all numbers in a human voice. Please not that the returned 'list' is acutally a string with Urls separated by commas and a space. This is essential to allow the voipscript to play them as one piece of audio.
+
+function quipusave_generate_numbers($input_digits) {
+  $urls = array(
+    '0' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/0.mp3, ',
+    '1' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/1.mp3, ',
+    '2' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/2.mp3, ',
+    '3' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/3.mp3, ',
+    '4' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/4.mp3, ',
+    '5' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/5.mp3, ',
+    '6' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/6.mp3, ',
+    '7' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/7.mp3, ',
+    '8' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/8.mp3, ',
+    '9' => 'http://sandbox.chakafilms.com/sandbox/projectquipu/sites/default/files/numbers/9.mp3, ',
+    );
+
+  $digits = str_split($input_digits);
+  $callback = '';
+  foreach ($digits as $digit) {
+    $callback = $callback . $urls[$digit];;
+  };
+  return $callback;
+};
+
+
+function quipusave_ismobile($caller_number) {
+  $prefix = str_split($caller_number, 4);
+  $ismobile = FALSE;
+  if ($prefix[0] == '+519') {
+    $ismobile = TRUE;
+  };
+
+  return $ismobile;
+};
+
+
+
+//An admin function to query the database and return a list of all urls currently recorded on our site. This is used to check against the number of recordings stored on Twillio so we can catch anything that might have slipped through the system. 
+
+function quipusave_allurls() {
+  $callback = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'petition_entry')
+    ->propertyOrderBy('created', 'DESC');
+  $results = $query->execute();
+  if (isset($results['node'])) {
+    $nodes = node_load_multiple(array_keys($results['node']));
+
+    foreach ($nodes as $node) {
+      $audio_link = field_get_items('node', $node, 'field_audio_link');
+      $callback[] = $audio_link[0]['value'];
+    };
+  }
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'audio_story')
+    ->propertyOrderBy('created', 'DESC');
+  $results = $query->execute();
+
+  if (isset($results['node'])) {
+    $nodes = node_load_multiple(array_keys($results['node']));
+
+    foreach ($nodes as $node) {
+      $audio_link = field_get_items('node', $node, 'field_audio_link');
+      $callback[] = $audio_link[0]['value'];
+    };
+  };
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'interview_questionnaire')
+    ->propertyOrderBy('created', 'DESC');
+  $results = $query->execute();
+
+  if (isset($results['node'])) {
+    $nodes = node_load_multiple(array_keys($results['node']));
+
+    foreach ($nodes as $node) {
+      $audio_link = field_get_items('node', $node, 'field_answer_1');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_2');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_3');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_4');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_5');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_6');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_7');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_8');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_9');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_10');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_11');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_12');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_13');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_14');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_15');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_16');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_17');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_18');
+      $callback[] = $audio_link[0]['value'];
+      $audio_link = field_get_items('node', $node, 'field_answer_19');
+    };
+  };
+
+
+  return $callback;
+};
+
